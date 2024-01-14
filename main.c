@@ -1,107 +1,82 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-/**
-Realizar un programa que permita cargar un vector con 20 numero aleatorios. Una vez cargado el vector original, procesar este a manera de tener un vector
-de numeros primos y un vector de numeros compuestos.
-Mostrar el vector original y los otros dos vectores.
-Ordenar el Vector original de mayor a menor.
-**/
-
-void cargarVectorAleatorio(int* vector, int longitud){
-    int i;
-    srand(time(NULL));
-
-    for(i= 0;i<longitud;i++){
-        vector[i] = rand()%200;
+void prodCategoria(char producto,float importe,float* acumCatO,float* acumCatS,float* acumCatU){
+    switch(producto){
+    case 'o':
+    case 'O':
+        (*acumCatO)+=importe;
+        break;
+    case 's':
+    case 'S':
+        (*acumCatS)+=importe;
+        break;
+    case 'u':
+    case 'U':
+        (*acumCatU)+=importe;
+        break;
     }
 }
 
-int esPrimo(int valor){
-    int i;
-    int contador=0;
+char productoVendido(float acumCatOtotal,float acumCatStotal,float acumCatUtotal){
+    if(acumCatOtotal>acumCatStotal && acumCatOtotal>acumCatUtotal)
+        return 'O';
+    else if(acumCatStotal>acumCatOtotal && acumCatStotal>acumCatUtotal)
+        return 'S';
+    else
+        return 'U';
+}
 
-    for(i=2;i<valor;i++){
-        if(valor%i==0){
-            contador++;
+void procesarClientas(int* cantClientas,char* productoMasVendido, int*cantidadVentas){
+    int dniCliente,i;
+    char categoria, producto;
+    float importe, acumCatO=0,acumCatS=0,acumCatU=0,acumCatOtotal=0,acumCatStotal=0,acumCatUtotal=0;
+
+    printf("Ingrese su numero de DNI: , para finalizar ingrese -1 :)\n");
+    scanf("%d",&dniCliente);
+    printf("Ingresar la categoria C/E:\n");
+            fflush(stdin);
+            scanf("%c",&categoria);
+    while(dniCliente!=-1){
+        (*cantClientas)++;
+        acumCatO=0;
+        acumCatS=0;
+        acumCatU=0;
+        for(i=0;i<5;i++){
+            printf("Ingresar producto O/S/U:\n");
+            fflush(stdin);
+            (*cantidadVentas)++;
+            scanf("%c",&producto);
+            printf("Ingrese el importe:\n");
+            scanf("%f",&importe);
+            prodCategoria(producto,importe,&acumCatO,&acumCatS,&acumCatU);
         }
-    }
-    return contador;
-    // 0 - es primo
-    // =! 0 - es compuesto
+        printf("Total clienta %d:\n",dniCliente);
+        printf("Total ollas $%1.2f\n",acumCatO);
+        printf("Total sartenes $%1.2f\n",acumCatS);
+        printf("Total utensillos $%1.2f\n",acumCatU);
 
+        acumCatOtotal+=acumCatO;
+        acumCatStotal+=acumCatS;
+        acumCatUtotal+=acumCatU;
+
+        printf("Ingrese otro numero de DNI: para finalizar ingrese -1//\n :)");
+        scanf("%d",&dniCliente);
+    }
+        (*productoMasVendido)=productoVendido(acumCatOtotal,acumCatStotal,acumCatUtotal);
 }
 
-void splitterVector(int* vPrimo, int* vComp, int* vector, int dimension){
+int main(){
+    int cantClientas=0, cantidadVentas=0;
+    char productoMasVendido;
 
-    int pivote,i;
-    int p=0,c=0;
-    for(i=0;i<dimension;i++){
-        if(esPrimo(vector[i])==0){
-            vPrimo[p]=vector[i];
-            p++;
-        }else{
+    procesarClientas(&cantClientas,&productoMasVendido,&cantidadVentas);
 
-            vComp[c]=vector[i];
-            c++;
-        }
-    }
-}
-    /**Burbujeo robado**/
-void intercambiar(int* a, int* b){
-    int temporal = *a;
-    *a = *b;
-    *b = temporal;
-}
-
-void burbuja(int arreglo[], int longitud) {
-    for (int x = 0; x < longitud; x++) {
-        for (int indiceActual = 0; indiceActual < longitud - 1;indiceActual++) {
-            int indiceSiguienteElemento = indiceActual + 1;
-            if (arreglo[indiceActual] < arreglo[indiceSiguienteElemento]) {
-                intercambiar(&arreglo[indiceActual], &arreglo[indiceSiguienteElemento]);
-      }
-    }
-  }
-}
-    /**/
-
-void imprimir(int* vector,int longitud){
-    int i;
-    for(i= 0;i<longitud;i++){
-        if(vector[i]!=0){
-            printf("POSICION %d ES VALOR %d \n",i+1,vector[i]);
-        }
-    }
-}
-int main1(){
-    int vector[20], vPrimo[20], vComp[20];
-    int i;
-
-    cargarVectorAleatorio(vector,20);
-    printf("VECTOR CARGADO ALEATORIAMENTE: \n");
-    imprimir(vector,20);
-    printf("\n");
-
-    for (i=0;i<20;i++){
-        vPrimo[i]=0;
-        vComp[i]=0;
-    }
-
-    splitterVector(vPrimo,vComp,vector,20);
-
-    printf("VECTOR PRIMO: \n");
-    imprimir(vPrimo,20);
-    printf("\n");
-
-    printf("VECTOR COMPUESTO: \n");
-    imprimir(vComp,20);
-    printf("\n");
-
-    printf("VECTOR ORIGINAL ORDENADO: \n");
-    burbuja(vector,20);
-    imprimir(vector,20);
+    printf("Cant clientas: %d\n",cantClientas);
+    printf("Producto mas vendido: %c\n",productoMasVendido);
+    printf("Ventas en total: %d\n",cantidadVentas);
 
     return 0;
 }
+
+
